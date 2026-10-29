@@ -1,0 +1,124 @@
+import tkinter as tk
+from tkinter import ttk, messagebox
+import sqlite3
+
+# Database setup
+conn = sqlite3.connect("prediksi_diabetes.db")
+cur = conn.cursor()
+cur.execute("""CREATE TABLE IF NOT EXISTS pasien (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nama_pasien TEXT,
+    usia INTEGER,
+    gula_darah REAL,
+    bmi REAL,
+    riwayat_ortu TEXT,
+    hasil_prediksi TEXT)""")
+conn.commit()
+
+
+# Prediksi
+def prediksi(gula, bmi, riwayat):
+    if gula >= 200:
+        if bmi >= 30 or riwayat == "Ya":
+            return "Sangat Tinggi"
+        return "Tinggi"
+    elif gula >= 140:
+        if bmi >= 30 or riwayat == "Ya":
+            return "Tinggi"
+        return "Sedang"
+    else:
+        if bmi >= 30:
+            if riwayat == "Ya":
+                return "Sedang"
+            return "Waspada"
+        if riwayat == "Ya":
+            return "Waspada"
+        return "Rendah"
+
+
+# Tombol simpan dan prediksi
+def proses():
+    nama = entry_nama.get().strip()
+    usia = entry_usia.get().strip()
+    gula = entry_gula.get().strip()
+    bmi = entry_bmi.get().strip()
+    riwayat = combo_riwayat.get()
+
+    # validasi
+    if nama == "" or usia == "" or gula == "" or bmi == "" or riwayat == "":
+        messagebox.showwarning("Peringatan", "Semua data harus diisi!")
+        return
+    if not usia.isdigit() or int(usia) < 1 or int(usia) > 120:
+        messagebox.showwarning("Peringatan", "Usia harus angka 1 - 120!")
+        return
+    try:
+        gula = float(gula)
+        bmi = float(bmi)
+    except ValueError:
+        messagebox.showwarning("Peringatan", "Gula darah dan BMI harus berupa angka!")
+        return
+    if gula <= 0 or bmi <= 0:
+        messagebox.showwarning("Peringatan", "Gula darah dan BMI harus lebih dari 0!")
+        return
+
+    hasil = prediksi(gula, bmi, riwayat)
+
+    # simpan ke database
+    cur.execute("INSERT INTO pasien (nama_pasien, usia, gula_darah, bmi, riwayat_ortu, hasil_prediksi) VALUES (?, ?, ?, ?, ?, ?)",
+                (nama, int(usia), gula, bmi, riwayat, hasil))
+    conn.commit()
+
+    # tampilkan hasil dengan warna
+    warna = {"Rendah": "green", "Waspada": "gold", "Sedang": "orange",
+             "Tinggi": "red", "Sangat Tinggi": "darkred"}
+    label_hasil.config(text="Risiko: " + hasil, bg=warna[hasil], fg="white")
+
+
+# Tombol lihat data
+def lihat_data():
+    jendela = tk.Toplevel(root)
+    jendela.title("Riwayat Pasien")
+    kolom = ("id", "nama_pasien", "usia", "gula_darah", "bmi", "riwayat_ortu", "hasil_prediksi")
+    tabel = ttk.Treeview(jendela, columns=kolom, show="headings")
+    for k in kolom:
+        tabel.heading(k, text=k)
+        tabel.column(k, width=110)
+    tabel.pack(padx=10, pady=10)
+
+    cur.execute("SELECT * FROM pasien")
+    for baris in cur.fetchall():
+        tabel.insert("", tk.END, values=baris)
+
+
+# Tampilan GUI
+root = tk.Tk()
+root.title("Prediksi Risiko Diabetes")
+
+tk.Label(root, text="Nama Pasien").grid(row=0, column=0, padx=10, pady=5, sticky="w")
+entry_nama = tk.Entry(root, width=25)
+entry_nama.grid(row=0, column=1)
+
+tk.Label(root, text="Usia").grid(row=1, column=0, padx=10, pady=5, sticky="w")
+entry_usia = tk.Entry(root, width=25)
+entry_usia.grid(row=1, column=1)
+
+tk.Label(root, text="Gula Darah (mg/dL)").grid(row=2, column=0, padx=10, pady=5, sticky="w")
+entry_gula = tk.Entry(root, width=25)
+entry_gula.grid(row=2, column=1)
+
+tk.Label(root, text="BMI").grid(row=3, column=0, padx=10, pady=5, sticky="w")
+entry_bmi = tk.Entry(root, width=25)
+entry_bmi.grid(row=3, column=1)
+
+tk.Label(root, text="Riwayat Diabetes Ortu").grid(row=4, column=0, padx=10, pady=5, sticky="w")
+combo_riwayat = ttk.Combobox(root, values=["Ya", "Tidak"], state="readonly", width=22)
+combo_riwayat.grid(row=4, column=1)
+
+tk.Button(root, text="Prediksi", width=12, command=proses).grid(row=5, column=0, pady=10)
+tk.Button(root, text="Lihat Data", width=12, command=lihat_data).grid(row=5, column=1, pady=10)
+
+label_hasil = tk.Label(root, text="Hasil prediksi", font=("Arial", 12, "bold"), width=30, height=2, bg="lightgray")
+label_hasil.grid(row=6, column=0, columnspan=2, padx=10, pady=10)
+
+root.mainloop()
+conn.close()
