@@ -15,6 +15,7 @@ cur.execute("""CREATE TABLE IF NOT EXISTS pasien (
     hasil_prediksi TEXT)""")
 conn.commit()
 
+
 # Prediksi
 def prediksi(gula, bmi, riwayat):
     if gula >= 200:
@@ -23,16 +24,17 @@ def prediksi(gula, bmi, riwayat):
         return "Tinggi"
     elif gula >= 140:
         if bmi >= 30 or riwayat == "Ya":
-                    return "Tinggi"
+            return "Tinggi"
         return "Sedang"
     else:
         if bmi >= 30:
-                if riwayat == "Ya":
-                 return "Sedang"
-                return "Waspada"
+            if riwayat == "Ya":
+                return "Sedang"
+            return "Waspada"
         if riwayat == "Ya":
             return "Waspada"
         return "Rendah"
+
 
 # Tombol simpan dan prediksi
 def proses():
@@ -42,36 +44,36 @@ def proses():
     bmi = entry_bmi.get().strip()
     riwayat = combo_riwayat.get()
 
-# validasi
+    # validasi
     if nama == "" or usia == "" or gula == "" or bmi == "" or riwayat == "":
         messagebox.showwarning("Peringatan", "Semua data harus diisi!")
         return
     if not usia.isdigit() or int(usia) < 1 or int(usia) > 120:
         messagebox.showwarning("Peringatan", "Usia harus angka 1 - 120!")
         return
-    
     try:
-            gula = float(gula)
-            bmi = float(bmi)
+        gula = float(gula)
+        bmi = float(bmi)
     except ValueError:
-            messagebox.showwarning("Peringatan", "Gula darah dan BMI harus berupa angka!")
-            return
+        messagebox.showwarning("Peringatan", "Gula darah dan BMI harus berupa angka!")
+        return
     if gula <= 0 or bmi <= 0:
-            messagebox.showwarning("Peringatan", "Gula darah dan BMI harus lebih dari 0!")
-            return
-    
+        messagebox.showwarning("Peringatan", "Gula darah dan BMI harus lebih dari 0!")
+        return
+
     hasil = prediksi(gula, bmi, riwayat)
-    
+
     # simpan ke database
     cur.execute("INSERT INTO pasien (nama_pasien, usia, gula_darah, bmi, riwayat_ortu, hasil_prediksi) VALUES (?, ?, ?, ?, ?, ?)",
-                    (nama, int(usia), gula, bmi, riwayat, hasil))
+                (nama, int(usia), gula, bmi, riwayat, hasil))
     conn.commit()
-    
-        # tampilkan hasil dengan warna
+
+    # tampilkan hasil dengan warna
     warna = {"Rendah": "green", "Waspada": "gold", "Sedang": "orange",
-                 "Tinggi": "red", "Sangat Tinggi": "darkred"}
+             "Tinggi": "red", "Sangat Tinggi": "darkred"}
     label_hasil.config(text="Risiko: " + hasil, bg=warna[hasil], fg="white")
-    
+
+
 # Tombol lihat data
 def lihat_data():
     jendela = tk.Toplevel(root)
@@ -86,6 +88,7 @@ def lihat_data():
     cur.execute("SELECT * FROM pasien")
     for baris in cur.fetchall():
         tabel.insert("", tk.END, values=baris)
+
 
 # Tampilan GUI
 root = tk.Tk()
