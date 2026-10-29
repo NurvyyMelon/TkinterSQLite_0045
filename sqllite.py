@@ -41,3 +41,8 @@ def proses():
     gula = entry_gula.get().strip()
     bmi = entry_bmi.get().strip()
     riwayat = combo_riwayat.get()
+
+# validasi
+    if nama == "" or usia == "" or gula == "" or bmi == "" or riwayat == "":
+        messagebox.showwarning("Peringatan", "Semua data harus diisi!")
+        return
