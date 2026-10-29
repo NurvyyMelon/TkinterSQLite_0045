@@ -25,3 +25,12 @@ def prediksi(gula, bmi, riwayat):
         if bmi >= 30 or riwayat == "Ya":
                     return "Tinggi"
         return "Sedang"
+    else:
+        if bmi >= 30:
+                if riwayat == "Ya":
+                 return "Sedang"
+                return "Waspada"
+        if riwayat == "Ya":
+            return "Waspada"
+        return "Rendah"
+    
