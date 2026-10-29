@@ -33,4 +33,11 @@ def prediksi(gula, bmi, riwayat):
         if riwayat == "Ya":
             return "Waspada"
         return "Rendah"
-    
+
+# Tombol simpan dan prediksi
+def proses():
+    nama = entry_nama.get().strip()
+    usia = entry_usia.get().strip()
+    gula = entry_gula.get().strip()
+    bmi = entry_bmi.get().strip()
+    riwayat = combo_riwayat.get()
