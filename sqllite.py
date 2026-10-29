@@ -20,3 +20,8 @@ def prediksi(gula, bmi, riwayat):
     if gula >= 200:
         if bmi >= 30 or riwayat == "Ya":
             return "Sangat Tinggi"
+        return "Tinggi"
+    elif gula >= 140:
+        if bmi >= 30 or riwayat == "Ya":
+                    return "Tinggi"
+        return "Sedang"
