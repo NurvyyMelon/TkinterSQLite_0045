@@ -47,5 +47,17 @@ def proses():
         messagebox.showwarning("Peringatan", "Semua data harus diisi!")
         return
     if not usia.isdigit() or int(usia) < 1 or int(usia) > 120:
-            messagebox.showwarning("Peringatan", "Usia harus angka 1 - 120!")
+        messagebox.showwarning("Peringatan", "Usia harus angka 1 - 120!")
+        return
+    
+    try:
+            gula = float(gula)
+            bmi = float(bmi)
+    except ValueError:
+            messagebox.showwarning("Peringatan", "Gula darah dan BMI harus berupa angka!")
             return
+    if gula <= 0 or bmi <= 0:
+            messagebox.showwarning("Peringatan", "Gula darah dan BMI harus lebih dari 0!")
+            return
+    
+    hasil = prediksi(gula, bmi, riwayat)
